@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Halaman Tidak Ditemukan — TomatoScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  
+</head>
+<body>
+  <div class="grain"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <svg class="logo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <line x1="12" y1="2"  x2="12" y2="6"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2"  y1="12" x2="6"  y2="12" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>TomatoScan</span>
+      </a>
+      <a href="/" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Kembali
+      </a>
+    </div>
+  </header>
+
+  <main class="not-found-main">
+
+    <span class="not-found-code">404</span>
+    <span class="not-found-emoji">🍅</span>
+
+    <h1 class="not-found-title">Halaman Tidak Ditemukan</h1>
+    <p class="not-found-desc">
+      Sepertinya halaman yang kamu cari tidak ada atau sudah dipindahkan.
+      Coba kembali ke beranda dan mulai deteksi dari sana.
+    </p>
+
+    <div class="not-found-actions">
+      <a href="/" class="btn-home">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Ke Beranda
+      </a>
+      <a href="javascript:history.back()" class="btn-secondary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Halaman Sebelumnya
+      </a>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="not-found-hint">
+      <p>Mungkin yang kamu cari</p>
+      <div class="hint-links">
+        <a href="/" class="hint-link">
+          <span class="hint-link-icon">🔬</span>
+          <span class="hint-link-text">Deteksi penyakit daun tomat</span>
+          <span class="hint-link-arrow">→</span>
+        </a>
+        <a href="/#cara-pakai" class="hint-link">
+          <span class="hint-link-icon">📖</span>
+          <span class="hint-link-text">Cara menggunakan TomatoScan</span>
+          <span class="hint-link-arrow">→</span>
+        </a>
+        <a href="https://www.kaggle.com/datasets/vasantharank/tomato-leaf-disease-detection-yolov8-dataset"
+           target="_blank" rel="noopener" class="hint-link">
+          <span class="hint-link-icon">📦</span>
+          <span class="hint-link-text">Dataset PlantVillage (Kaggle)</span>
+          <span class="hint-link-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>TomatoScan v2 &nbsp;·&nbsp; YOLOv8 + PlantVillage Dataset</p>
+  </footer>
+
+</body>
+</html>

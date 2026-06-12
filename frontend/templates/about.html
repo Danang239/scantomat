@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tentang — TomatoScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  
+</head>
+<body>
+  <div class="grain"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <svg class="logo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <line x1="12" y1="2"  x2="12" y2="6"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2"  y1="12" x2="6"  y2="12" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>TomatoScan</span>
+      </a>
+      <a href="/" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Kembali
+      </a>
+    </div>
+  </header>
+
+  <main class="about-main">
+
+    <!-- HERO -->
+    <div class="about-hero">
+      <p class="about-hero-eyebrow">Tentang Proyek</p>
+      <h1 class="about-hero-title">
+        TomatoScan —<br/><em>Deteksi Cerdas</em> untuk Petani
+      </h1>
+      <p class="about-hero-desc">
+        Aplikasi berbasis kecerdasan buatan untuk mendeteksi penyakit daun tomat
+        secara instan menggunakan model YOLOv8 yang dilatih dari dataset PlantVillage.
+      </p>
+    </div>
+
+    <!-- TENTANG PROYEK -->
+    <div class="about-section">
+      <h2 class="about-section-title">
+        <span>📌</span> Latar Belakang
+      </h2>
+      <div class="about-card">
+        <p>
+          Penyakit daun tomat merupakan salah satu penyebab utama kerugian hasil panen
+          di Indonesia. Deteksi dini yang akurat sangat penting namun seringkali sulit
+          dilakukan oleh petani tanpa pengetahuan khusus atau akses ke ahli pertanian.
+        </p>
+        <p>
+          TomatoScan hadir sebagai solusi berbasis AI yang memungkinkan petani
+          mendeteksi penyakit daun tomat hanya dengan mengupload foto menggunakan
+          smartphone — tanpa perlu keahlian khusus.
+        </p>
+      </div>
+    </div>
+
+    <!-- PERFORMA MODEL -->
+    <div class="about-section">
+      <h2 class="about-section-title">
+        <span>📊</span> Performa Model
+      </h2>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span class="metric-value">98.3%</span>
+          <span class="metric-label">mAP50</span>
+          <span class="metric-sub">Mean Average Precision pada IoU 0.50</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">86.6%</span>
+          <span class="metric-label">mAP50-95</span>
+          <span class="metric-sub">Mean Average Precision rata-rata</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">93.4%</span>
+          <span class="metric-label">Precision</span>
+          <span class="metric-sub">Akurasi deteksi positif</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">94.3%</span>
+          <span class="metric-label">Recall</span>
+          <span class="metric-sub">Kemampuan menemukan semua kasus</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 KELAS PENYAKIT -->
+    <div class="about-section">
+      <h2 class="about-section-title">
+        <span>🌿</span> 10 Kelas yang Dapat Dideteksi
+      </h2>
+      <div class="disease-grid">
+        <div class="disease-item danger">🦠 Bercak Bakteri</div>
+        <div class="disease-item warn">🍂 Hawar Awal</div>
+        <div class="disease-item danger">⚠️ Hawar Daun Akhir</div>
+        <div class="disease-item warn">🌿 Jamur Daun</div>
+        <div class="disease-item warn">🔵 Bercak Septoria</div>
+        <div class="disease-item warn">🕷️ Tungau Laba-laba</div>
+        <div class="disease-item warn">🎯 Bercak Target</div>
+        <div class="disease-item danger">🌀 Virus Keriting Kuning</div>
+        <div class="disease-item ok">✅ Daun Sehat</div>
+        <div class="disease-item danger">🧬 Virus Mosaik</div>
+      </div>
+    </div>
+
+    <!-- DATASET -->
+    <div class="about-section">
+      <h2 class="about-section-title">
+        <span>📦</span> Dataset
+      </h2>
+      <div class="dataset-card">
+        <div class="dataset-icon">📦</div>
+        <div class="dataset-body">
+          <h3 class="dataset-title">Tomato Leaf Disease Detection — YOLOv8</h3>
+          <p class="dataset-desc">
+            Dataset oleh <strong>vasantharank</strong> di Kaggle. Berisi gambar daun tomat
+            berlabel bounding box untuk 10 kelas kondisi — sehat maupun terinfeksi penyakit.
+            Format YOLOv8 dengan split train/valid/test.
+          </p>
+          <a href="https://www.kaggle.com/datasets/vasantharank/tomato-leaf-disease-detection-yolov8-dataset"
+             target="_blank" rel="noopener" class="dataset-link">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Lihat di Kaggle
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="about-section">
+      <h2 class="about-section-title">
+        <span>⚙️</span> Teknologi yang Digunakan
+      </h2>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <span class="tech-icon">🧠</span>
+          <span class="tech-name">YOLOv8</span>
+          <span class="tech-desc">Model deteksi objek</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-icon">🐍</span>
+          <span class="tech-name">Python</span>
+          <span class="tech-desc">Bahasa pemrograman</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-icon">🌐</span>
+          <span class="tech-name">Flask</span>
+          <span class="tech-desc">Web framework</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-icon">⚡</span>
+          <span class="tech-name">Groq AI</span>
+          <span class="tech-desc">Saran penanganan AI</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-icon">👁️</span>
+          <span class="tech-name">OpenCV</span>
+          <span class="tech-desc">Pemrosesan gambar</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-icon">🔥</span>
+          <span class="tech-name">PyTorch</span>
+          <span class="tech-desc">Framework deep learning</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      <span class="disclaimer-icon">⚠️</span>
+      <p class="disclaimer-text">
+        <strong>Disclaimer:</strong> Hasil deteksi TomatoScan bersifat indikatif dan
+        tidak menggantikan diagnosis dari ahli pertanian atau penyuluh lapangan.
+        Selalu konsultasikan hasil deteksi dengan tenaga ahli sebelum mengambil
+        tindakan penanganan, terutama untuk serangan penyakit tingkat tinggi.
+      </p>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>
+      TomatoScan v2 &nbsp;·&nbsp; YOLOv8 + PlantVillage Dataset &nbsp;·&nbsp;
+      AI Saran oleh Groq (LLaMA 3.1)
+    </p>
+  </footer>
+
+</body>
+</html>

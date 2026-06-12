@@ -1,0 +1,35 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment / secret files
+.env
+.env.*
+*.env
+
+# Django / Flask common files
+db.sqlite3
+media/
+staticfiles/
+
+# Upload hasil user
+frontend/static/uploads/
+
+# Dataset training
+dataset_tomat/
+
+# Cache
+.cache/
+.pytest_cache/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/

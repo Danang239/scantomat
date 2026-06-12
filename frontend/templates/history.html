@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat Deteksi — TomatoScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  
+</head>
+<body>
+  <div class="grain"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <svg class="logo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <line x1="12" y1="2"  x2="12" y2="6"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2"  y1="12" x2="6"  y2="12" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>TomatoScan</span>
+      </a>
+      <a href="/" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Kembali
+      </a>
+    </div>
+  </header>
+
+  <main class="history-main">
+
+    <div class="history-header">
+      <div class="history-title-wrap">
+        <span class="history-eyebrow">Riwayat Deteksi</span>
+        <h1 class="history-title">Deteksi Sebelumnya</h1>
+      </div>
+      <div class="history-actions">
+        <span class="count-badge" id="countBadge">0 deteksi</span>
+        <button class="btn-clear" id="btnClear" onclick="clearHistory()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+          Hapus Semua
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <span class="empty-icon">🔍</span>
+      <h2 class="empty-title">Belum Ada Riwayat</h2>
+      <p class="empty-desc">
+        Riwayat deteksi akan muncul di sini setelah kamu menganalisis
+        foto daun tomat pertama kali.
+      </p>
+      <a href="/" class="btn-analyze" style="text-decoration:none; display:inline-flex;">
+        Mulai Deteksi
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+             style="margin-left:6px;">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- History list -->
+    <div class="history-list" id="historyList"></div>
+
+  </main>
+
+  <footer class="footer">
+    <p>TomatoScan v2 &nbsp;·&nbsp; Riwayat tersimpan di browser lokal</p>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = 'tomatoscan_history';
+    const MAX_HISTORY = 10;
+
+    function getHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      } catch { return []; }
+    }
+
+    function saveHistory(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getBadgeClass(tingkat) {
+      const t = (tingkat || '').toLowerCase();
+      if (t === 'tinggi') return 'danger';
+      if (t === 'sedang') return 'warn';
+      if (t === 'sehat')  return 'ok';
+      return 'warn';
+    }
+
+    function getBadgeLabel(tingkat) {
+      const t = (tingkat || '').toLowerCase();
+      if (t === 'tinggi') return '⚠ Bahaya Tinggi';
+      if (t === 'sedang') return '△ Perlu Perhatian';
+      if (t === 'sehat')  return '✓ Sehat';
+      return tingkat;
+    }
+
+    function formatTime(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function deleteItem(index) {
+      const data = getHistory();
+      data.splice(index, 1);
+      saveHistory(data);
+      renderHistory();
+    }
+
+    function clearHistory() {
+      if (!confirm('Hapus semua riwayat deteksi?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const data  = getHistory();
+      const list  = document.getElementById('historyList');
+      const empty = document.getElementById('emptyState');
+      const count = document.getElementById('countBadge');
+      const clear = document.getElementById('btnClear');
+
+      count.textContent = `${data.length} deteksi`;
+      clear.style.display = data.length === 0 ? 'none' : 'inline-flex';
+
+      if (data.length === 0) {
+        empty.style.display = 'block';
+        list.innerHTML = '';
+        return;
+      }
+
+      empty.style.display = 'none';
+      list.innerHTML = data.map((item, i) => {
+        const cls   = getBadgeClass(item.tingkat_bahaya);
+        const label = getBadgeLabel(item.tingkat_bahaya);
+        const thumb = item.image_url
+          ? `<img src="${item.image_url}" class="history-thumb" alt="${item.nama_id}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>`
+          : '';
+        const placeholder = `<div class="history-thumb-placeholder" style="${item.image_url ? 'display:none' : ''}">${item.emoji || '🌿'}</div>`;
+
+        return `
+          <div class="history-item ${cls}">
+            ${thumb}
+            ${placeholder}
+            <div class="history-body">
+              <div class="history-disease">${item.emoji || ''} ${item.nama_id}</div>
+              <div class="history-meta">
+                <span class="history-conf">${item.confidence}% yakin</span>
+                <span class="history-badge ${cls}">${label}</span>
+                <span class="history-time">${formatTime(item.timestamp)}</span>
+              </div>
+            </div>
+            <button class="history-delete" onclick="deleteItem(${i})" title="Hapus">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    renderHistory();
+  </script>
+</body>
+</html>

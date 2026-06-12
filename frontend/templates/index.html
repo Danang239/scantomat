@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TomatoScan — Deteksi Penyakit Daun Tomat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  
+</head>
+<body>
+  <div class="grain"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg class="logo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <line x1="12" y1="2"  x2="12" y2="6"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2"  y1="12" x2="6"  y2="12" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>TomatoScan</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="header-badge">YOLOv8</span>
+        <span class="header-badge" style="background:linear-gradient(135deg,#EDE9FE,#DBEAFE);color:#4338CA;border-color:#C7D2FE;">
+          AI Powered
+        </span>
+        <a href="/history" class="btn-back">📋 Riwayat</a>
+        <a href="/about" class="btn-back">ℹ️ Tentang</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero">
+      <p class="hero-eyebrow">Deteksi Penyakit Tanaman Tomat</p>
+      <h1 class="hero-title">
+        Kenali penyakit daun tomat<br /><em>sebelum terlambat</em>
+      </h1>
+      <p class="hero-desc">
+        Upload foto daun tomat dan dapatkan diagnosis instan lengkap dengan
+        saran penanganan dari AI — mendukung 10 jenis kondisi menggunakan
+        model YOLOv8 terlatih dari dataset PlantVillage.
+      </p>
+
+      <!-- Stats Bar -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num">10</span>
+          <span class="stat-label">Jenis Penyakit</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">YOLOv8</span>
+          <span class="stat-label">Model AI</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">Groq</span>
+          <span class="stat-label">AI Saran</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">Instan</span>
+          <span class="stat-label">Hasil Deteksi</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPLOAD CARD -->
+    <section class="card upload-card">
+
+      <div class="upload-card-header">
+        <h2 class="upload-card-title">Analisis Foto Daun Tomat</h2>
+        <p class="upload-card-sub">Ambil foto yang jelas dan cukup cahaya untuk hasil terbaik</p>
+      </div>
+
+      <form action="/predict" method="POST" enctype="multipart/form-data" id="uploadForm">
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="dropZone">
+          <input type="file" name="file" id="fileInput"
+                 accept=".jpg,.jpeg,.png,.webp" class="file-input" />
+
+          <div class="drop-content" id="dropContent">
+            <div class="drop-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="drop-main">Seret &amp; lepas foto di sini</p>
+            <p class="drop-sub">
+              atau <span class="drop-link">pilih dari perangkat</span>
+            </p>
+            <p class="drop-hint">JPG · PNG · WEBP &nbsp;|&nbsp; Maks. 16 MB</p>
+          </div>
+
+          <div class="drop-preview" id="dropPreview">
+            <img id="previewImg" src="" alt="Preview foto" />
+            <div class="preview-overlay">
+              <span>Ganti foto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confidence Slider -->
+        <div class="conf-wrap">
+          <div class="conf-header">
+            <label for="confRange" class="conf-label">Ambang Batas Kepercayaan</label>
+            <span class="conf-value" id="confValue">25%</span>
+          </div>
+          <input type="range" id="confRange" name="confidence"
+                 min="0.10" max="0.90" step="0.05" value="0.25" />
+          <div class="conf-hints">
+            <span>🔍 Lebih sensitif</span>
+            <span>🎯 Lebih selektif</span>
+          </div>
+        </div>
+
+        <!-- Form Footer -->
+        <div class="form-footer">
+          <span class="file-name" id="fileName">Belum ada file dipilih</span>
+          <button type="submit" class="btn-analyze" id="btnAnalyze" disabled>
+            Analisis Sekarang
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-inner">
+          <div class="spinner"></div>
+          <strong>Menganalisis gambar…</strong>
+          <p>Model AI sedang memproses foto kamu</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section">
+      <h2 class="how-title">Cara Kerja</h2>
+      <p class="how-sub">Tiga langkah sederhana untuk mendeteksi penyakit daun tomat</p>
+      <div class="how-grid">
+        <div class="how-card">
+          <span class="how-num">01</span>
+          <span class="how-icon">📸</span>
+          <h3>Upload Foto</h3>
+          <p>Ambil foto daun tomat yang jelas. Pastikan daun terlihat penuh dengan pencahayaan yang cukup.</p>
+        </div>
+        <div class="how-card">
+          <span class="how-num">02</span>
+          <span class="how-icon">🔬</span>
+          <h3>AI Menganalisis</h3>
+          <p>Model YOLOv8 mendeteksi dan mengklasifikasikan kondisi daun secara otomatis dalam hitungan detik.</p>
+        </div>
+        <div class="how-card">
+          <span class="how-num">03</span>
+          <span class="how-icon">💊</span>
+          <h3>Dapatkan Saran</h3>
+          <p>Terima hasil diagnosis lengkap beserta saran penanganan praktis yang dihasilkan oleh AI Groq.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISEASE TAGS -->
+    <section class="tags-section">
+      <div class="tags-header">
+        <p class="tags-label">Kondisi yang Dapat Terdeteksi</p>
+        <span class="tags-count">10 Kelas</span>
+      </div>
+      <div class="tags-grid">
+        <span class="tag">🦠 Bercak Bakteri</span>
+        <span class="tag tag--warn">🍂 Hawar Awal</span>
+        <span class="tag tag--healthy">✅ Daun Sehat</span>
+        <span class="tag tag--danger">⚠️ Hawar Akhir</span>
+        <span class="tag tag--warn">🌿 Jamur Daun</span>
+        <span class="tag tag--danger">🧬 Virus Mosaik</span>
+        <span class="tag tag--warn">🔵 Bercak Septoria</span>
+        <span class="tag">🕷️ Tungau Laba-laba</span>
+        <span class="tag tag--warn">🎯 Bercak Target</span>
+        <span class="tag tag--danger">🌀 Virus Keriting Kuning</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>
+      TomatoScan v2 &nbsp;·&nbsp; Dataset PlantVillage YOLOv8 &nbsp;·&nbsp;
+      <a href="https://www.kaggle.com/datasets/vasantharank/tomato-leaf-disease-detection-yolov8-dataset"
+         target="_blank" rel="noopener">vasantharank @ Kaggle</a>
+      &nbsp;·&nbsp; Hasil bersifat indikatif, bukan pengganti konsultasi ahli pertanian.
+    </p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    // Confidence slider live update
+    const confRange = document.getElementById('confRange');
+    const confValue = document.getElementById('confValue');
+    if (confRange && confValue) {
+      function updateSlider() {
+        const pct = Math.round(parseFloat(confRange.value) * 100);
+        confValue.textContent = pct + '%';
+        const progress = ((parseFloat(confRange.value) - 0.10) / (0.90 - 0.10)) * 100;
+        confRange.style.background = `linear-gradient(to right, var(--green-500) 0%, var(--green-500) ${progress}%, var(--border) ${progress}%)`;
+      }
+      confRange.addEventListener('input', updateSlider);
+      updateSlider();
+    }
+  </script>
+</body>
+</html>

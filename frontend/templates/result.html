@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hasil Deteksi — TomatoScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <div class="grain"></div>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg class="logo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <line x1="12" y1="2"  x2="12" y2="6"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2"  y1="12" x2="6"  y2="12" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>TomatoScan</span>
+      </div>
+
+      <a href="/" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Deteksi Ulang
+      </a>
+    </div>
+  </header>
+
+  <main class="result-main">
+
+    {% if error %}
+    <div class="card error-card">
+      <span class="error-icon">⚠️</span>
+      <h2>Gagal Memproses</h2>
+      <p>{{ error }}</p>
+      <a href="/" class="btn-analyze" style="display:inline-flex;text-decoration:none;margin-top:8px;">
+        Coba Lagi
+      </a>
+    </div>
+
+    {% else %}
+
+    <div class="breadcrumb">
+      <a href="/">Beranda</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Hasil Deteksi</span>
+      <span class="breadcrumb-sep">/</span>
+      <span>{{ disease_name_id }}</span>
+    </div>
+
+    <!-- BANNER PERINGATAN LOW CONFIDENCE -->
+    {% if low_confidence %}
+    <div class="low-confidence-banner">
+      <div class="low-confidence-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+
+      <div class="low-confidence-body">
+        <div class="low-confidence-title">Tingkat Keyakinan Rendah ({{ confidence }}%)</div>
+        <div class="low-confidence-desc">
+          Hasil deteksi mungkin kurang akurat. Pastikan foto adalah daun tomat yang jelas,
+          pencahayaan cukup, dan objek tidak buram atau terpotong.
+        </div>
+      </div>
+
+      <a href="/" class="low-confidence-action">Foto Ulang</a>
+    </div>
+    {% endif %}
+
+    <div class="result-grid">
+
+      <!-- KIRI: Gambar -->
+      <div class="result-image-col">
+        <div class="card image-card">
+          <img src="{{ image_url }}" alt="Foto daun tomat yang dianalisis" class="result-img" id="resultImg" />
+          <div class="image-meta">
+            <span class="image-label">📷 Foto yang Dianalisis</span>
+            <span class="image-conf">{{ confidence }}% yakin</span>
+          </div>
+        </div>
+
+        <a href="{{ original_url }}" download class="btn-download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Unduh Foto Hasil
+        </a>
+
+        <form action="/download-pdf" method="POST" style="width:100%; margin-top:8px;">
+          <input type="hidden" name="disease_name"    value="{{ disease_name }}"/>
+          <input type="hidden" name="disease_name_id" value="{{ disease_name_id }}"/>
+          <input type="hidden" name="confidence"      value="{{ confidence }}"/>
+          <input type="hidden" name="image_path"      value="{{ image_path }}"/>
+          <input type="hidden" name="ai_active"       value="{{ 'true' if ai_active else 'false' }}"/>
+
+          <!-- Data GLCM untuk laporan PDF -->
+          <input
+            type="hidden"
+            name="glcm_result_json"
+            value='{{ glcm_result|tojson if glcm_result else "{}" }}'
+          />
+
+          <input
+            type="hidden"
+            name="glcm_interp_json"
+            value='{{ glcm_interp|tojson if glcm_interp else "{}" }}'
+          />
+
+          <input
+            type="hidden"
+            name="glcm_summary_json"
+            value='{{ glcm_summary|tojson if glcm_summary else "{}" }}'
+          />
+
+          <input
+            type="hidden"
+            name="glcm_crop_path"
+            value="{{ glcm_crop_path if glcm_crop_path else '' }}"
+          />
+
+          <button type="submit" class="btn-download" style="background:var(--green-800);color:#fff;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Unduh Laporan PDF
+          </button>
+        </form>
+      </div>
+
+      <!-- KANAN: Info -->
+      <div class="result-info-col">
+
+        <!-- CARD 1: Diagnosis -->
+        <div class="card result-header-card
+          {% if info.tingkat_bahaya in ['Tinggi', 'tinggi'] %}danger-border
+          {% elif info.tingkat_bahaya in ['Sedang', 'sedang'] %}warn-border
+          {% else %}ok-border{% endif %}">
+
+          <div class="result-badge-row">
+            <span class="result-badge result-badge--{{ info.tingkat_bahaya }}">
+              {% if info.tingkat_bahaya in ['Sehat', 'sehat'] %}
+                ✓ &nbsp;Sehat
+              {% elif info.tingkat_bahaya in ['Tinggi', 'tinggi'] %}
+                ⚠ &nbsp;Bahaya Tinggi
+              {% else %}
+                △ &nbsp;Perlu Perhatian
+              {% endif %}
+            </span>
+            <span class="confidence-chip">🎯 {{ confidence }}% keyakinan</span>
+          </div>
+
+          <h1 class="result-disease-name">
+            {{ info.emoji if info.emoji else '🌿' }} {{ disease_name_id }}
+          </h1>
+          <p class="result-disease-en">{{ disease_name }}</p>
+
+          {% if info.penyebab and info.penyebab != None and info.penyebab != '—' %}
+          <div class="result-cause">
+            <span class="cause-label">Penyebab</span>
+            <span class="cause-value">{{ info.penyebab }}</span>
+          </div>
+          {% endif %}
+
+          {% if info.tingkat_bahaya in ['Tinggi', 'tinggi'] %}
+          <div class="severity-bar">
+            <span class="severity-label">Tingkat</span>
+            <div class="severity-track">
+              <div class="severity-fill high" style="width:90%;"></div>
+            </div>
+            <span class="severity-pct" style="color:var(--red-600);">Tinggi</span>
+          </div>
+          {% elif info.tingkat_bahaya in ['Sedang', 'sedang'] %}
+          <div class="severity-bar">
+            <span class="severity-label">Tingkat</span>
+            <div class="severity-track">
+              <div class="severity-fill medium" style="width:55%;"></div>
+            </div>
+            <span class="severity-pct" style="color:#D97706;">Sedang</span>
+          </div>
+          {% elif info.tingkat_bahaya in ['Sehat', 'sehat'] %}
+          <div class="severity-bar">
+            <span class="severity-label">Tingkat</span>
+            <div class="severity-track">
+              <div class="severity-fill low" style="width:10%;"></div>
+            </div>
+            <span class="severity-pct" style="color:var(--green-600);">Sehat</span>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <!-- CARD 2: Tentang Penyakit -->
+        <div class="card info-card">
+          <h2 class="card-title">🔬 Tentang Penyakit</h2>
+
+          {% if info.deskripsi %}
+          <p class="info-desc">{{ info.deskripsi }}</p>
+          {% endif %}
+
+          {% if info.gejala and info.gejala | length > 0 %}
+          <h3 class="sub-title">Gejala yang Terlihat</h3>
+          <ul class="symptom-list">
+            {% for g in info.gejala %}
+            <li>{{ g }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <!-- CARD 3: Saran Penanganan -->
+        <div class="card advice-card">
+          <div class="advice-header">
+            <h2 class="card-title" style="margin-bottom:0;">💊 Saran Penanganan</h2>
+            {% if ai_active %}
+            <span class="ai-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+              Saran dari Groq AI
+            </span>
+            {% else %}
+            <span class="static-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Database Lokal
+            </span>
+            {% endif %}
+          </div>
+
+          {% if advice.sections and advice.sections | length > 0 %}
+            {% for section in advice.sections %}
+            <div class="advice-section">
+              <h4 class="advice-section-title">{{ section.judul }}</h4>
+              <ul class="advice-list">
+                {% for poin in section.poin %}
+                <li>{{ poin }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endfor %}
+          {% else %}
+          <p class="advice-fallback">Saran tidak tersedia.</p>
+          {% endif %}
+
+          {% if ai_active %}
+          <div class="ai-footer-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+            Saran ini dihasilkan oleh Groq AI (LLaMA 3.1) berdasarkan hasil deteksi.
+            Tetap konsultasikan dengan penyuluh pertanian setempat untuk penanganan lanjut.
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- CARD 4: Analisis Tekstur GLCM -->
+        {% if glcm_result and glcm_result.status == 'ok' %}
+        <div class="card glcm-card">
+
+          <div class="glcm-card-header">
+            <div>
+              <span class="glcm-eyebrow">Texture Analysis</span>
+              <h2 class="card-title glcm-title">🔬 Analisis Tekstur GLCM</h2>
+              <p class="glcm-desc">
+                Fitur tekstur dihitung dari area bounding box hasil deteksi YOLOv8,
+                lalu dianalisis menggunakan Gray Level Co-occurrence Matrix.
+              </p>
+            </div>
+
+            <div class="glcm-method-badge">
+              <span>GLCM</span>
+              <small>5 fitur tekstur</small>
+            </div>
+          </div>
+
+          <div class="glcm-method-grid">
+            <div class="glcm-method-item">
+              <span class="glcm-method-label">Mode</span>
+              <strong>Grayscale</strong>
+            </div>
+
+            <div class="glcm-method-item">
+              <span class="glcm-method-label">Ukuran</span>
+              <strong>64 × 64 px</strong>
+            </div>
+
+            <div class="glcm-method-item">
+              <span class="glcm-method-label">Jarak</span>
+              <strong>1 piksel</strong>
+            </div>
+
+            <div class="glcm-method-item">
+              <span class="glcm-method-label">Sudut</span>
+              <strong>0°, 45°, 90°, 135°</strong>
+            </div>
+          </div>
+
+          {% if glcm_crop_url %}
+          <div class="glcm-preview">
+            <div class="glcm-preview-image-wrap">
+              <img
+                src="{{ glcm_crop_url }}"
+                alt="Crop area daun yang dianalisis GLCM"
+                class="glcm-preview-image"
+              />
+            </div>
+
+            <div class="glcm-preview-body">
+              <span class="glcm-preview-label">Area Analisis</span>
+              <h3>Crop Bounding Box YOLOv8</h3>
+              <p>
+                Gambar ini adalah potongan area daun yang digunakan untuk menghitung fitur
+                tekstur GLCM. Dengan ini, proses analisis tekstur dapat dilihat langsung
+                berdasarkan area deteksi model.
+              </p>
+
+              {% if glcm_result.bbox %}
+              <div class="glcm-bbox-info">
+                <span>BBox</span>
+                <strong>
+                  x1={{ glcm_result.bbox[0] }},
+                  y1={{ glcm_result.bbox[1] }},
+                  x2={{ glcm_result.bbox[2] }},
+                  y2={{ glcm_result.bbox[3] }}
+                </strong>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if glcm_visuals %}
+          <div class="glcm-visual-section">
+            <div class="glcm-visual-header">
+              <span class="glcm-preview-label">Visualisasi Proses GLCM</span>
+              <h3>Perubahan Citra Menjadi Representasi Tekstur</h3>
+              <p>
+                Visual berikut menunjukkan bagaimana area daun diubah menjadi representasi tekstur.
+                Tampilan ini membantu menjelaskan hubungan antara citra grayscale, matriks GLCM,
+                dan fitur utama seperti kontras, dissimilarity, homogenitas, energi, dan entropy.
+              </p>
+            </div>
+
+            <div class="glcm-visual-grid">
+
+              {% if glcm_visuals.grayscale %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.grayscale }}" alt="Grayscale GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Grayscale</strong>
+                  <span>Area daun dikonversi ke tingkat keabuan sebagai dasar perhitungan GLCM.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.quantized %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.quantized }}" alt="Quantized gray level GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Quantized Gray Level</strong>
+                  <span>Level keabuan disederhanakan agar pola tekstur lebih mudah dibaca.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.glcm_heatmap %}
+              <div class="glcm-visual-card glcm-visual-card-wide">
+                <img src="{{ glcm_visuals.glcm_heatmap }}" alt="GLCM matrix heatmap" />
+                <div class="glcm-visual-caption">
+                  <strong>GLCM Matrix Heatmap</strong>
+                  <span>Menunjukkan frekuensi kemunculan pasangan intensitas piksel yang saling berdekatan.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.contrast_map %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.contrast_map }}" alt="Contrast map GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Contrast Map</strong>
+                  <span>Area terang menunjukkan perubahan intensitas tinggi atau tekstur yang kasar.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.dissimilarity_map %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.dissimilarity_map }}" alt="Dissimilarity map GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Dissimilarity Map</strong>
+                  <span>Menyoroti area dengan perbedaan nilai piksel yang tinggi.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.homogeneity_map %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.homogeneity_map }}" alt="Homogeneity map GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Homogeneity Map</strong>
+                  <span>Area terang menunjukkan bagian tekstur yang lebih halus dan seragam.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.energy_map %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.energy_map }}" alt="Energy map GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Energy Map</strong>
+                  <span>Menunjukkan area dengan pola tekstur yang lebih teratur.</span>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if glcm_visuals.entropy_map %}
+              <div class="glcm-visual-card">
+                <img src="{{ glcm_visuals.entropy_map }}" alt="Entropy map GLCM" />
+                <div class="glcm-visual-caption">
+                  <strong>Entropy Map</strong>
+                  <span>Area terang menunjukkan tekstur yang lebih kompleks dan tidak beraturan.</span>
+                </div>
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="glcm-grid">
+
+            <!-- Kontras -->
+            <div class="glcm-item">
+              <div class="glcm-item-header">
+                <span class="glcm-icon">📊</span>
+                <div>
+                  <span class="glcm-label">Kontras</span>
+                  <small class="glcm-help">Perbedaan intensitas tekstur</small>
+                </div>
+              </div>
+
+              <div class="glcm-value">{{ glcm_result.kontras }}</div>
+
+              <div class="glcm-meter">
+                <div
+                  class="glcm-meter-fill {% if glcm_result.kontras < 50 %}glcm-low{% elif glcm_result.kontras < 200 %}glcm-medium{% else %}glcm-high{% endif %}"
+                  style="width:{% if glcm_result.kontras < 50 %}28{% elif glcm_result.kontras < 200 %}58{% else %}88{% endif %}%;"
+                ></div>
+              </div>
+
+              {% if glcm_interp %}
+              <div class="glcm-interp">{{ glcm_interp.kontras }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Dissimilarity -->
+            <div class="glcm-item">
+              <div class="glcm-item-header">
+                <span class="glcm-icon">🧩</span>
+                <div>
+                  <span class="glcm-label">Dissimilarity</span>
+                  <small class="glcm-help">Ketidaksamaan antar piksel</small>
+                </div>
+              </div>
+
+              <div class="glcm-value">{{ glcm_result.dissimilarity }}</div>
+
+              <div class="glcm-meter">
+                <div
+                  class="glcm-meter-fill {% if glcm_result.dissimilarity < 5 %}glcm-low{% elif glcm_result.dissimilarity < 15 %}glcm-medium{% else %}glcm-high{% endif %}"
+                  style="width:{% if glcm_result.dissimilarity < 5 %}30{% elif glcm_result.dissimilarity < 15 %}60{% else %}88{% endif %}%;"
+                ></div>
+              </div>
+
+              {% if glcm_interp %}
+              <div class="glcm-interp">{{ glcm_interp.dissimilarity }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Homogenitas -->
+            <div class="glcm-item">
+              <div class="glcm-item-header">
+                <span class="glcm-icon">🔗</span>
+                <div>
+                  <span class="glcm-label">Homogenitas</span>
+                  <small class="glcm-help">Kemiripan piksel berdekatan</small>
+                </div>
+              </div>
+
+              <div class="glcm-value">{{ glcm_result.homogenitas }}</div>
+
+              <div class="glcm-meter">
+                <div
+                  class="glcm-meter-fill {% if glcm_result.homogenitas > 0.7 %}glcm-high{% elif glcm_result.homogenitas > 0.5 %}glcm-medium{% else %}glcm-low{% endif %}"
+                  style="width:{% if glcm_result.homogenitas > 0.7 %}82{% elif glcm_result.homogenitas > 0.5 %}58{% else %}34{% endif %}%;"
+                ></div>
+              </div>
+
+              {% if glcm_interp %}
+              <div class="glcm-interp">{{ glcm_interp.homogenitas }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Energi -->
+            <div class="glcm-item">
+              <div class="glcm-item-header">
+                <span class="glcm-icon">⚡</span>
+                <div>
+                  <span class="glcm-label">Energi</span>
+                  <small class="glcm-help">Keteraturan pola tekstur</small>
+                </div>
+              </div>
+
+              <div class="glcm-value">{{ glcm_result.energi }}</div>
+
+              <div class="glcm-meter">
+                <div
+                  class="glcm-meter-fill {% if glcm_result.energi > 0.05 %}glcm-high{% elif glcm_result.energi > 0.02 %}glcm-medium{% else %}glcm-low{% endif %}"
+                  style="width:{% if glcm_result.energi > 0.05 %}82{% elif glcm_result.energi > 0.02 %}54{% else %}30{% endif %}%;"
+                ></div>
+              </div>
+
+              {% if glcm_interp %}
+              <div class="glcm-interp">{{ glcm_interp.energi }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Entropy -->
+            <div class="glcm-item glcm-item-wide">
+              <div class="glcm-item-header">
+                <span class="glcm-icon">🌪️</span>
+                <div>
+                  <span class="glcm-label">Entropy</span>
+                  <small class="glcm-help">Kompleksitas dan ketidakteraturan tekstur</small>
+                </div>
+              </div>
+
+              <div class="glcm-value">{{ glcm_result.entropy }}</div>
+
+              <div class="glcm-meter">
+                <div
+                  class="glcm-meter-fill {% if glcm_result.entropy < 5 %}glcm-low{% elif glcm_result.entropy < 7 %}glcm-medium{% else %}glcm-high{% endif %}"
+                  style="width:{% if glcm_result.entropy < 5 %}34{% elif glcm_result.entropy < 7 %}62{% else %}90{% endif %}%;"
+                ></div>
+              </div>
+
+              {% if glcm_interp %}
+              <div class="glcm-interp">{{ glcm_interp.entropy }}</div>
+              {% endif %}
+            </div>
+
+          </div>
+
+          {% if glcm_summary %}
+          <div class="glcm-ai-summary">
+            <div class="glcm-ai-summary-icon">🤖</div>
+            <div class="glcm-ai-summary-body">
+              <div class="glcm-ai-summary-head">
+                <strong>Kesimpulan AI Analisis Tekstur GLCM</strong>
+                {% if glcm_summary.source == 'ai' %}
+                <span>Groq AI</span>
+                {% elif glcm_summary.source == 'static' %}
+                <span>Fallback Lokal</span>
+                {% endif %}
+              </div>
+
+              <p>{{ glcm_summary.summary }}</p>
+
+              {% if glcm_summary.points and glcm_summary.points | length > 0 %}
+              <ul class="glcm-ai-points">
+                {% for point in glcm_summary.points %}
+                <li>{{ point }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
+          </div>
+          {% else %}
+          <div class="glcm-insight">
+            <div class="glcm-insight-icon">💡</div>
+            <div>
+              <strong>Kesimpulan Analisis Tekstur</strong>
+              <p>
+                Nilai GLCM membantu membaca karakter tekstur daun secara kuantitatif.
+                Kontras dan dissimilarity tinggi menunjukkan tekstur tidak seragam,
+                sedangkan homogenitas dan energi membantu melihat keteraturan pola.
+                Entropy digunakan untuk melihat tingkat kompleksitas tekstur.
+              </p>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="glcm-footer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            GLCM pada project ini digunakan sebagai analisis pendukung YOLOv8.
+            Fitur yang digunakan: contrast, dissimilarity, homogeneity, energy, dan entropy.
+          </div>
+
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- ── FLOATING CHATBOT ── -->
+    <div class="chat-bubble" id="chatBubble" onclick="toggleChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="chat-bubble-label">Tanya AI</span>
+    </div>
+
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-panel-header">
+        <div class="chat-panel-title">
+          <span class="chat-panel-icon">🤖</span>
+          <div>
+            <div class="chat-panel-name">Asisten TomatoScan</div>
+            <div class="chat-panel-sub">Mengenal: {{ disease_name_id }}</div>
+          </div>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg chat-msg--ai">
+          <div class="chat-msg-bubble">
+            Halo! Saya siap membantu menjawab pertanyaan seputar <strong>{{ disease_name_id }}</strong> yang terdeteksi. Silakan tanya apa saja! 🌿
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-wrap">
+        <input
+          type="text"
+          id="chatInput"
+          class="chat-input"
+          placeholder="Tanya tentang penyakit ini..."
+          onkeydown="if(event.key==='Enter') sendChat()"
+          autocomplete="off"
+        />
+        <button class="chat-send" id="chatSend" onclick="sendChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {% endif %}
+
+  </main>
+
+  <footer class="footer">
+    <p>
+      TomatoScan v2 &nbsp;·&nbsp; YOLOv8 + PlantVillage Dataset &nbsp;·&nbsp;
+      AI Saran oleh Groq (LLaMA 3.1) &nbsp;·&nbsp;
+      Hasil bersifat indikatif, bukan pengganti konsultasi ahli pertanian.
+    </p>
+  </footer>
+
+  {% if not error %}
+  <script>
+    (function() {
+      try {
+        const STORAGE_KEY = 'tomatoscan_history';
+        const MAX_HISTORY = 10;
+        const item = {
+          nama_id       : "{{ disease_name_id }}",
+          class_name    : "{{ disease_name }}",
+          confidence    : {{ confidence }},
+          tingkat_bahaya: "{{ info.tingkat_bahaya }}",
+          emoji         : "{{ info.emoji if info.emoji else '🌿' }}",
+          image_url     : "{{ image_url }}",
+          timestamp     : new Date().toISOString(),
+        };
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        history.unshift(item);
+        if (history.length > MAX_HISTORY) history.splice(MAX_HISTORY);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      } catch(e) {}
+    })();
+
+    const DISEASE_CONTEXT = {
+      disease_name   : "{{ disease_name }}",
+      disease_name_id: "{{ disease_name_id }}",
+      tingkat_bahaya : "{{ info.tingkat_bahaya }}",
+      penyebab       : "{{ info.penyebab if info.penyebab else '' }}",
+    };
+
+    let chatHistory = [];
+    let chatOpen    = false;
+
+    function toggleChat() {
+      chatOpen = !chatOpen;
+      const panel  = document.getElementById('chatPanel');
+      const bubble = document.getElementById('chatBubble');
+      if (chatOpen) {
+        panel.classList.add('chat-panel--open');
+        bubble.classList.add('chat-bubble--active');
+        document.getElementById('chatInput').focus();
+      } else {
+        panel.classList.remove('chat-panel--open');
+        bubble.classList.remove('chat-bubble--active');
+      }
+    }
+
+    function appendMessage(role, text) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = `chat-msg chat-msg--${role}`;
+      div.innerHTML = `<div class="chat-msg-bubble">${text}</div>`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function setLoading(on) {
+      const btn   = document.getElementById('chatSend');
+      const input = document.getElementById('chatInput');
+      btn.disabled   = on;
+      input.disabled = on;
+      if (on) {
+        const container = document.getElementById('chatMessages');
+        const div = document.createElement('div');
+        div.className = 'chat-msg chat-msg--ai chat-msg--typing';
+        div.id = 'typingIndicator';
+        div.innerHTML = `<div class="chat-msg-bubble">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+      } else {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+      }
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      input.value = '';
+      appendMessage('user', message);
+      chatHistory.push({ role: 'user', content: message });
+      setLoading(true);
+
+      try {
+        const resp = await fetch('/chat', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({
+            message        : message,
+            disease_name   : DISEASE_CONTEXT.disease_name,
+            disease_name_id: DISEASE_CONTEXT.disease_name_id,
+            tingkat_bahaya : DISEASE_CONTEXT.tingkat_bahaya,
+            penyebab       : DISEASE_CONTEXT.penyebab,
+            history        : chatHistory.slice(-6),
+          }),
+        });
+
+        const data = await resp.json();
+        const reply = data.reply || 'Maaf, tidak ada respons.';
+        setLoading(false);
+        appendMessage('ai', reply);
+        chatHistory.push({ role: 'assistant', content: reply });
+
+      } catch (err) {
+        setLoading(false);
+        appendMessage('ai', 'Maaf, terjadi kesalahan koneksi. Coba lagi.');
+      }
+    }
+  </script>
+  {% endif %}
+</body>
+</html>
