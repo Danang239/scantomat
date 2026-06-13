@@ -114,6 +114,7 @@ def predict_image(image_path: str, conf_threshold: float = 0.25) -> dict | None:
             return None
 
     try:
+        #preprocessing yolov8
         results = _model(image_path, conf=conf_threshold, verbose=False)
         if not results:
             return None
